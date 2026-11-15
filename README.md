@@ -1,201 +1,519 @@
-<div align="center">
-<h1>Depth Anything V2</h1>
+# NASA-SPACE-APPS-CHALLENGE_FIREWATCH_
+### An Intelligent Multi-Modal Fire Detection, Spatial Analysis & Risk Assessment Framework
 
-[**Lihe Yang**](https://liheyoung.github.io/)<sup>1</sup> · [**Bingyi Kang**](https://bingykang.github.io/)<sup>2&dagger;</sup> · [**Zilong Huang**](http://speedinghzl.github.io/)<sup>2</sup>
-<br>
-[**Zhen Zhao**](http://zhaozhen.me/) · [**Xiaogang Xu**](https://xiaogang00.github.io/) · [**Jiashi Feng**](https://sites.google.com/site/jshfeng/)<sup>2</sup> · [**Hengshuang Zhao**](https://hszhao.github.io/)<sup>1*</sup>
+<p align="center">
+  <img src="assets/firewatch_banner.png" alt="FIREWATCH — Intelligent Fire Monitoring" width="100%">
+</p>
 
-<sup>1</sup>HKU&emsp;&emsp;&emsp;<sup>2</sup>TikTok
-<br>
-&dagger;project lead&emsp;*corresponding author
+<p align="center">
+  **SEE THE FIRE. MAP THE THREAT. PREDICT THE RISK.**
+</p>
 
-<a href="https://arxiv.org/abs/2406.09414"><img src='https://img.shields.io/badge/arXiv-Depth Anything V2-red' alt='Paper PDF'></a>
-<a href='https://depth-anything-v2.github.io'><img src='https://img.shields.io/badge/Project_Page-Depth Anything V2-green' alt='Project Page'></a>
-<a href='https://huggingface.co/spaces/depth-anything/Depth-Anything-V2'><img src='https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Demo-blue'></a>
-<a href='https://huggingface.co/datasets/depth-anything/DA-2K'><img src='https://img.shields.io/badge/Benchmark-DA--2K-yellow' alt='Benchmark'></a>
-</div>
+<p align="center">
+  <img src="https://img.shields.io/badge/Project-NASA%20Space%20Apps%20Challenge-EA6A32?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/Domain-Computer%20Vision-168AAD?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/AI-Multimodal%20Analysis-7554A8?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/Status-Research%20Prototype-2D9C75?style=for-the-badge" />
+</p>
 
-This work presents Depth Anything V2. It significantly outperforms [V1](https://github.com/LiheYoung/Depth-Anything) in fine-grained details and robustness. Compared with SD-based models, it enjoys faster inference speed, fewer parameters, and higher depth accuracy.
+---
 
-![teaser](assets/teaser.png)
+## 01. Overview
 
+**FIREWATCH** is an experimental intelligent fire-monitoring framework that explores how computer vision, optical sensing, spatial estimation, fire propagation modelling, and artificial intelligence can work together to improve fire detection and situational awareness.
 
-## News
-- **2025-01-22:** [Video Depth Anything](https://videodepthanything.github.io) has been released. It generates consistent depth maps for super-long videos (e.g., over 5 minutes).
-- **2024-12-22:** [Prompt Depth Anything](https://promptda.github.io/) has been released. It supports 4K resolution metric depth estimation when low-res LiDAR is used to prompt the DA models.
-- **2024-07-06:** Depth Anything V2 is supported in [Transformers](https://github.com/huggingface/transformers/). See the [instructions](https://huggingface.co/docs/transformers/main/en/model_doc/depth_anything_v2) for convenient usage.
-- **2024-06-25:** Depth Anything is integrated into [Apple Core ML Models](https://developer.apple.com/machine-learning/models/). See the instructions ([V1](https://huggingface.co/apple/coreml-depth-anything-small), [V2](https://huggingface.co/apple/coreml-depth-anything-v2-small)) for usage.
-- **2024-06-22:** We release [smaller metric depth models](https://github.com/DepthAnything/Depth-Anything-V2/tree/main/metric_depth#pre-trained-models) based on Depth-Anything-V2-Small and Base.
-- **2024-06-20:** Our repository and project page are flagged by GitHub and removed from the public for 6 days. Sorry for the inconvenience.
-- **2024-06-14:** Paper, project page, code, models, demo, and benchmark are all released.
+Conventional fire monitoring often focuses on identifying the presence of a fire. FIREWATCH explores a broader question:
 
+**What if a fire-monitoring system could not only identify a fire, but also estimate its spatial characteristics, analyse its surrounding optical environment, simulate its potential propagation, and communicate the resulting risks?**
 
-## Pre-trained Models
+The project is organised into four independently developed computational systems:
 
-We provide **four models** of varying scales for robust relative depth estimation:
+1. **Computer Vision & Spatial Localisation** — Detecting flames and estimating their spatial characteristics using computer vision and depth estimation.
+2. **Optical Smoke Analysis** — Analysing smoke-induced changes in brightness, scattering patterns, and apparent optical motion.
+3. **Fire Propagation Simulation** — Modelling the progression of a fire under configurable simulation conditions.
+4. **AI-Driven Risk Assessment** — Translating simulation outputs and environmental information into structured risk assessments.
 
-| Model | Params | Checkpoint |
-|:-|-:|:-:|
-| Depth-Anything-V2-Small | 24.8M | [Download](https://huggingface.co/depth-anything/Depth-Anything-V2-Small/resolve/main/depth_anything_v2_vits.pth?download=true) |
-| Depth-Anything-V2-Base | 97.5M | [Download](https://huggingface.co/depth-anything/Depth-Anything-V2-Base/resolve/main/depth_anything_v2_vitb.pth?download=true) |
-| Depth-Anything-V2-Large | 335.3M | [Download](https://huggingface.co/depth-anything/Depth-Anything-V2-Large/resolve/main/depth_anything_v2_vitl.pth?download=true) |
-| Depth-Anything-V2-Giant | 1.3B | Coming soon |
+These modules are being developed as independent components with the intention of bringing them together under a unified FIREWATCH interface.
 
+---
 
-## Usage
+## 02. System Architecture
 
-### Prepraration
+<p align="center">
+  <img src="assets/firewatch_architecture.png" alt="FIREWATCH System Architecture" width="90%">
+</p>
+
+FIREWATCH follows a modular architecture. Each component has its own processing pipeline, inputs, outputs, and dependencies.
+
+```mermaid
+flowchart TD
+    A["FIREWATCH"] --> B["Computer Vision & Depth"]
+    A --> C["Optical Smoke Analysis"]
+    A --> D["Fire Propagation Simulation"]
+    A --> E["AI Risk Assessment"]
+
+    B --> F["Flame Detection"]
+    B --> G["Depth Estimation"]
+    B --> H["3D Spatial Visualisation"]
+
+    C --> I["Brightness & Scattering Analysis"]
+    C --> J["Dense Optical Flow"]
+    C --> K["Anomaly Detection"]
+
+    D --> L["Propagation Modelling"]
+    D --> M["Simulation Outputs"]
+
+    M -. "Simulation information" .-> E
+    E --> N["Structured Risk Report"]
+```
+
+**Development philosophy:** The modules are independently executable. Their presence in one repository does not imply that every component is already connected through a fully autonomous pipeline.
+
+---
+
+## 03. The Four Core Systems
+
+### 3.1 Computer Vision & 3D Spatial Localisation
+
+<p align="center">
+  <img src="assets/fire_detection.png" alt="Flame Detection Output" width="48%">
+  <img src="assets/depth_localization.png" alt="Depth and Spatial Localisation" width="48%">
+</p>
+
+The computer vision subsystem investigates the detection and spatial characterisation of flame regions from visual input.
+
+Its processing pipeline includes:
+
+- Image acquisition and preprocessing.
+- Deep-learning-based flame detection.
+- Identification of flame regions within image frames.
+- Depth estimation for detected regions.
+- Spatial localisation and 3D visualisation.
+- Model training and evaluation analysis.
+
+The intention is to move beyond a simple binary fire/no-fire classification and investigate the spatial properties of detected flames.
+
+**Key outputs:**
+- Flame detection results.
+- Bounding boxes and confidence values.
+- Estimated depth information.
+- 3D spatial visualisation.
+- Model evaluation and performance metrics.
+
+**Important research consideration:** Depth estimated from a monocular image is not equivalent to directly measured physical distance. Its accuracy depends on the model, assumptions, training data, and scene characteristics.
+
+**Module location:** `depth/`
+
+---
+
+### 3.2 Optical Smoke Analysis
+
+<p align="center">
+  <img src="assets/smoke_chamber.jpg" alt="Physical Optical Smoke Experiment" width="48%">
+  <img src="assets/optical_flow.png" alt="Optical Flow Analysis" width="48%">
+</p>
+
+The optical smoke subsystem investigates whether changes in the optical appearance and movement of smoke can be used as indicators of smoke presence.
+
+Rather than relying exclusively on conventional smoke classification, this experimental approach examines how smoke interacts with controlled illumination inside a chamber.
+
+A camera observes the illuminated region while image-processing algorithms quantify changes in the captured frames.
+
+#### Experimental setup
+
+The current prototype uses:
+
+- An enclosed observation chamber.
+- A controlled airflow arrangement using a fan.
+- A phone-based illumination source.
+- A camera observing the illuminated chamber.
+- A computer running real-time image analysis.
+
+Smoke entering the chamber changes the observed light distribution through scattering, attenuation, and changes in visible texture.
+
+#### Optical measurements
+
+The system investigates several complementary measurements:
+
+| Measurement | Purpose |
+|---|---|
+| Mean brightness | Tracks changes in overall image intensity. |
+| Brightness standard deviation | Measures spatial variation in illumination. |
+| Bright-region coverage | Quantifies the proportion of pixels exceeding a brightness threshold. |
+| Foreground coverage | Measures changes identified by background subtraction. |
+| Dense optical flow | Estimates apparent pixel motion between consecutive frames. |
+| Flow magnitude | Quantifies the magnitude of apparent image motion. |
+| Flow direction | Estimates the dominant direction of apparent image motion. |
+| Temporal variation | Tracks changes in optical measurements over time. |
+
+#### Baseline-relative anomaly detection
+
+The system first establishes a clean-air reference measurement.
+
+Subsequent observations are compared against this baseline to identify unusual optical changes.
+
+For a measured parameter \(X\), a baseline-relative deviation can be represented as:
+
+\[
+Z_X = \frac{|X_t-X_0|}{\sigma_0+\epsilon}
+\]
+
+Where:
+
+- \(X_t\) is the current measurement.
+- \(X_0\) is the clean-air baseline.
+- \(\sigma_0\) is the baseline variability.
+- \(\epsilon\) prevents division by zero.
+
+Brightness and optical-flow deviations are combined with additional image measurements to generate an experimental anomaly score.
+
+A persistence mechanism helps prevent isolated frame changes from immediately triggering an alert.
+
+#### Detection states
+
+- **NORMAL** — No significant deviation from the captured baseline.
+- **POSSIBLE SMOKE INDICATOR** — An unusual optical change has been observed.
+- **SMOKE INDICATOR DETECTED** — The configured anomaly conditions have persisted sufficiently to activate the alert.
+- **CALIBRATION REQUIRED** — A clean-air baseline has not yet been captured.
+
+The alert represents an optical anomaly consistent with the expected experimental observations. It is not a certified smoke alarm or a chemically validated smoke detector.
+
+**Module location:** `smoke_detection/`
+
+---
+
+### 3.3 Fire Propagation Simulation
+
+<p align="center">
+  <img src="assets/fire_simulation.png" alt="Fire Propagation Simulation" width="90%">
+</p>
+
+The fire propagation subsystem explores how fire may evolve across a simulated environment.
+
+Rather than treating a detected fire as an isolated visual event, this module investigates its potential progression under defined simulation conditions.
+
+The simulator is independently developed and maintained as a separate component.
+
+Its capabilities and physical assumptions depend on the specific simulation implementation.
+
+The intended areas of analysis include:
+
+- Configurable simulation conditions.
+- Fire progression over time.
+- Spatial representation of affected regions.
+- Visualisation of propagation.
+- Numerical simulation outputs.
+- Exportable information for subsequent risk analysis.
+
+**Module location:** `fire_simulation/`
+
+---
+
+### 3.4 AI-Driven Risk Assessment
+
+<p align="center">
+  <img src="assets/risk_assessment.png" alt="AI Risk Assessment Output" width="90%">
+</p>
+
+The risk-assessment subsystem explores the use of large language models to interpret fire-related simulation information and produce structured assessments.
+
+The objective is to translate technical simulation outputs into information that is easier to interpret and act upon.
+
+The system is designed to receive structured inputs, including relevant simulation results and contextual information.
+
+Its intended outputs include:
+
+- Identified hazards.
+- Potential consequences.
+- Risk severity classifications.
+- Contextual explanations.
+- Suggested mitigation measures.
+- Structured assessment reports.
+
+The language model acts as an analytical reporting layer. Its outputs are dependent on the quality of its inputs and should not be interpreted as independently validated engineering or emergency-response advice.
+
+API credentials, where required, should be supplied through environment variables rather than committed to the repository.
+
+**Module location:** `risk_assessment/`
+
+---
+
+## 04. Why This Approach?
+
+FIREWATCH explores a combination of complementary sensing and analytical techniques.
+
+| Conventional approach | FIREWATCH research direction |
+|---|---|
+| Identify visible fire | Detect and spatially characterise flame regions |
+| Rely on a single visual indicator | Investigate multiple optical measurements |
+| Observe a fire at one point in time | Explore fire propagation through simulation |
+| Present raw numerical outputs | Generate structured AI-assisted risk reports |
+
+The central idea is that fire monitoring can benefit from combining detection, measurement, modelling, and interpretation rather than treating them as isolated tasks.
+
+---
+
+## 05. Research Context: Microgravity Fire Behaviour
+
+An important motivation for FIREWATCH is the broader problem of fire behaviour in environments where gravity-driven convection is reduced, including spacecraft and microgravity research environments.
+
+Flames in microgravity can behave differently from flames in ordinary terrestrial environments.
+
+On Earth, buoyancy-driven convection influences flame shape, hot-gas movement, oxygen transport, and the movement of combustion products.
+
+In microgravity, buoyancy-driven effects are significantly reduced, changing the transport processes that influence flame behaviour.
+
+This creates important challenges for fire detection and monitoring:
+
+- Flame geometry may differ from familiar terrestrial flames.
+- Smoke and combustion products may disperse differently.
+- Natural buoyant transport is altered.
+- Conventional visual assumptions may not transfer directly.
+- Detection and monitoring methods require appropriate validation under relevant environmental conditions.
+
+FIREWATCH investigates technologies that could contribute to more comprehensive fire monitoring.
+
+**Research limitation:** Terrestrial fire and smoke datasets do not establish performance in microgravity. The current prototype is an exploratory engineering effort, not a microgravity-validated fire safety system. Dedicated datasets and controlled validation experiments would be necessary to establish suitability for spaceflight environments.
+
+---
+
+## 06. Repository Structure
+
+The repository is organised into independently maintained modules.
+
+```text
+FIREWATCH/
+│
+├── README.md
+│
+├── assets/
+│   ├── firewatch_banner.png
+│   ├── firewatch_architecture.png
+│   ├── firewatch_dashboard.png
+│   ├── fire_detection.png
+│   ├── depth_localization.png
+│   ├── smoke_chamber.jpg
+│   ├── optical_flow.png
+│   ├── fire_simulation.png
+│   └── risk_assessment.png
+│
+├── depth/
+│   ├── [Computer vision and depth estimation files]
+│   └── [Model weights and configuration]
+│
+├── smoke_detection/
+│   ├── firewatch_smoke.py
+│   └── [Optional sample data]
+│
+├── fire_simulation/
+│   └── [Fire propagation simulation files]
+│
+└── risk_assessment/
+    └── [AI risk assessment files]
+```
+
+Individual module folders may contain their own dependency files, configuration, documentation, and execution instructions.
+
+---
+
+## 07. Installation & Execution
+
+FIREWATCH is currently organised as a modular collection of Python systems.
+
+Each module should be installed and executed according to its own dependencies.
+
+### General requirements
+
+- Python 3.10 or later, subject to individual module compatibility.
+- Git.
+- A compatible camera for live optical smoke analysis.
+- Additional model weights and dependencies for the relevant modules.
+
+### Clone the repository
 
 ```bash
-git clone https://github.com/DepthAnything/Depth-Anything-V2
-cd Depth-Anything-V2
-pip install -r requirements.txt
+git clone https://github.com/mukund-mv/FIREWATCH.git
+
+cd FIREWATCH
 ```
 
-Download the checkpoints listed [here](#pre-trained-models) and put them under the `checkpoints` directory.
-
-### Use our models
-```python
-import cv2
-import torch
-
-from depth_anything_v2.dpt import DepthAnythingV2
-
-DEVICE = 'cuda' if torch.cuda.is_available() else 'mps' if torch.backends.mps.is_available() else 'cpu'
-
-model_configs = {
-    'vits': {'encoder': 'vits', 'features': 64, 'out_channels': [48, 96, 192, 384]},
-    'vitb': {'encoder': 'vitb', 'features': 128, 'out_channels': [96, 192, 384, 768]},
-    'vitl': {'encoder': 'vitl', 'features': 256, 'out_channels': [256, 512, 1024, 1024]},
-    'vitg': {'encoder': 'vitg', 'features': 384, 'out_channels': [1536, 1536, 1536, 1536]}
-}
-
-encoder = 'vitl' # or 'vits', 'vitb', 'vitg'
-
-model = DepthAnythingV2(**model_configs[encoder])
-model.load_state_dict(torch.load(f'checkpoints/depth_anything_v2_{encoder}.pth', map_location='cpu'))
-model = model.to(DEVICE).eval()
-
-raw_img = cv2.imread('your/image/path')
-depth = model.infer_image(raw_img) # HxW raw depth map in numpy
-```
-
-If you do not want to clone this repository, you can also load our models through [Transformers](https://github.com/huggingface/transformers/). Below is a simple code snippet. Please refer to the [official page](https://huggingface.co/docs/transformers/main/en/model_doc/depth_anything_v2) for more details.
-
-- Note 1: Make sure you can connect to Hugging Face and have installed the latest Transformers.
-- Note 2: Due to the [upsampling difference](https://github.com/huggingface/transformers/pull/31522#issuecomment-2184123463) between OpenCV (we used) and Pillow (HF used), predictions may differ slightly. So you are more recommended to use our models through the way introduced above.
-```python
-from transformers import pipeline
-from PIL import Image
-
-pipe = pipeline(task="depth-estimation", model="depth-anything/Depth-Anything-V2-Small-hf")
-image = Image.open('your/image/path')
-depth = pipe(image)["depth"]
-```
-
-### Running script on *images*
+### Smoke detection module
 
 ```bash
-python run.py \
-  --encoder <vits | vitb | vitl | vitg> \
-  --img-path <path> --outdir <outdir> \
-  [--input-size <size>] [--pred-only] [--grayscale]
-```
-Options:
-- `--img-path`: You can either 1) point it to an image directory storing all interested images, 2) point it to a single image, or 3) point it to a text file storing all image paths.
-- `--input-size` (optional): By default, we use input size `518` for model inference. ***You can increase the size for even more fine-grained results.***
-- `--pred-only` (optional): Only save the predicted depth map, without raw image.
-- `--grayscale` (optional): Save the grayscale depth map, without applying color palette.
+cd smoke_detection
 
-For example:
-```bash
-python run.py --encoder vitl --img-path assets/examples --outdir depth_vis
+python -m venv .venv
 ```
 
-### Running script on *videos*
+Linux:
 
 ```bash
-python run_video.py \
-  --encoder <vits | vitb | vitl | vitg> \
-  --video-path assets/examples_video --outdir video_depth_vis \
-  [--input-size <size>] [--pred-only] [--grayscale]
+source .venv/bin/activate
 ```
 
-***Our larger model has better temporal consistency on videos.***
-
-### Gradio demo
-
-To use our gradio demo locally:
+Windows:
 
 ```bash
-python app.py
+.venv\Scripts\activate
 ```
 
-You can also try our [online demo](https://huggingface.co/spaces/Depth-Anything/Depth-Anything-V2).
+Install the dependencies:
 
-***Note: Compared to V1, we have made a minor modification to the DINOv2-DPT architecture (originating from this [issue](https://github.com/LiheYoung/Depth-Anything/issues/81)).*** In V1, we *unintentionally* used features from the last four layers of DINOv2 for decoding. In V2, we use [intermediate features](https://github.com/DepthAnything/Depth-Anything-V2/blob/2cbc36a8ce2cec41d38ee51153f112e87c8e42d8/depth_anything_v2/dpt.py#L164-L169) instead. Although this modification did not improve details or accuracy, we decided to follow this common practice.
+```bash
+python -m pip install --upgrade pip
 
-
-## Fine-tuned to Metric Depth Estimation
-
-Please refer to [metric depth estimation](./metric_depth).
-
-
-## DA-2K Evaluation Benchmark
-
-Please refer to [DA-2K benchmark](./DA-2K.md).
-
-
-## Community Support
-
-**We sincerely appreciate all the community support for our Depth Anything series. Thank you a lot!**
-
-- Apple Core ML:
-    - https://developer.apple.com/machine-learning/models
-    - https://huggingface.co/apple/coreml-depth-anything-v2-small
-    - https://huggingface.co/apple/coreml-depth-anything-small
-- Transformers:
-    - https://huggingface.co/docs/transformers/main/en/model_doc/depth_anything_v2
-    - https://huggingface.co/docs/transformers/main/en/model_doc/depth_anything
-- TensorRT:
-    - https://github.com/spacewalk01/depth-anything-tensorrt
-    - https://github.com/zhujiajian98/Depth-Anythingv2-TensorRT-python
-- ONNX: https://github.com/fabio-sim/Depth-Anything-ONNX
-- ComfyUI: https://github.com/kijai/ComfyUI-DepthAnythingV2
-- Transformers.js (real-time depth in web): https://huggingface.co/spaces/Xenova/webgpu-realtime-depth-estimation
-- Android:
-  - https://github.com/shubham0204/Depth-Anything-Android
-  - https://github.com/FeiGeChuanShu/ncnn-android-depth_anything
-
-
-## Acknowledgement
-
-We are sincerely grateful to the awesome Hugging Face team ([@Pedro Cuenca](https://huggingface.co/pcuenq), [@Niels Rogge](https://huggingface.co/nielsr), [@Merve Noyan](https://huggingface.co/merve), [@Amy Roberts](https://huggingface.co/amyeroberts), et al.) for their huge efforts in supporting our models in Transformers and Apple Core ML.
-
-We also thank the [DINOv2](https://github.com/facebookresearch/dinov2) team for contributing such impressive models to our community.
-
-
-## LICENSE
-
-Depth-Anything-V2-Small model is under the Apache-2.0 license. Depth-Anything-V2-Base/Large/Giant models are under the CC-BY-NC-4.0 license.
-
-
-## Citation
-
-If you find this project useful, please consider citing:
-
-```bibtex
-@article{depth_anything_v2,
-  title={Depth Anything V2},
-  author={Yang, Lihe and Kang, Bingyi and Huang, Zilong and Zhao, Zhen and Xu, Xiaogang and Feng, Jiashi and Zhao, Hengshuang},
-  journal={arXiv:2406.09414},
-  year={2024}
-}
-
-@inproceedings{depth_anything_v1,
-  title={Depth Anything: Unleashing the Power of Large-Scale Unlabeled Data}, 
-  author={Yang, Lihe and Kang, Bingyi and Huang, Zilong and Xu, Xiaogang and Feng, Jiashi and Zhao, Hengshuang},
-  booktitle={CVPR},
-  year={2024}
-}
+python -m pip install opencv-python-headless numpy matplotlib pillow
 ```
+
+Run:
+
+```bash
+python firewatch_smoke.py
+```
+
+The smoke-monitoring application uses OpenCV for image processing and a separate graphical interface for visualisation.
+
+**Note:** Use `opencv-python-headless` rather than installing multiple OpenCV distributions in the same Python environment. This avoids common conflicts involving OpenCV's bundled Qt libraries.
+
+For the other modules, consult their respective folder-level documentation as their dependencies and execution commands may differ.
+
+---
+
+## 08. Experimental Setup
+
+<p align="center">
+  <img src="assets/smoke_chamber.jpg" alt="FIREWATCH Smoke Chamber" width="80%">
+</p>
+
+The physical smoke-monitoring experiment provides a controlled environment for testing the optical analysis subsystem.
+
+The chamber allows smoke to enter through a controlled airflow path while the camera observes changes in the illuminated region.
+
+The setup is intended to investigate the relationship between smoke presence and measurable image characteristics.
+
+Experimental variables include:
+
+- Illumination intensity and position.
+- Camera position and exposure.
+- Smoke movement through the chamber.
+- Image brightness and spatial distribution.
+- Apparent optical motion.
+- Background and environmental disturbances.
+
+Repeatable experiments and controlled baselines are important for evaluating whether observed changes are associated with smoke rather than changes in lighting, camera movement, or other disturbances.
+
+---
+
+## 09. Evaluation & Validation
+
+FIREWATCH is an experimental prototype, and its individual modules require separate evaluation.
+
+Relevant evaluation areas include:
+
+| Subsystem | Evaluation criteria |
+|---|---|
+| Flame detection | Precision, recall, mAP, confidence behaviour |
+| Depth estimation | Depth error and spatial consistency |
+| Smoke analysis | Baseline stability, detection latency, false-positive rate |
+| Optical flow | Motion consistency and sensitivity to disturbances |
+| Fire simulation | Numerical stability and comparison with reference scenarios |
+| Risk assessment | Output consistency, completeness, and expert review |
+
+Metrics should be reported with their corresponding datasets, test conditions, and evaluation methods.
+
+Training, validation, test, and experimental results should be clearly distinguished.
+
+No unverified performance figures are presented as established results.
+
+---
+
+## 10. Current Limitations & Future Work
+
+FIREWATCH is a work in progress. Its current research limitations include:
+
+1. **Microgravity validation:** The current systems have not been validated in a microgravity environment.
+2. **Depth uncertainty:** Monocular depth estimation is subject to model and scene-dependent error.
+3. **Smoke specificity:** Optical anomalies are not equivalent to chemical identification or calibrated smoke concentration.
+4. **Lighting sensitivity:** Changes in illumination, reflections, and camera exposure can influence optical measurements.
+5. **Simulation assumptions:** Propagation predictions depend on the assumptions and parameters of the simulator.
+6. **AI reliability:** Generated risk reports require verification and should not replace qualified safety assessments.
+7. **System integration:** The modules are independently developed; a fully automated end-to-end pipeline remains a development objective.
+
+### Planned development
+
+- Improve repeatability and calibration of optical smoke measurements.
+- Expand smoke detection experiments across different illumination and airflow conditions.
+- Improve depth estimation and spatial validation.
+- Investigate appropriate microgravity fire datasets and reference experiments.
+- Validate simulation outputs against reference scenarios.
+- Improve the exchange of structured data between modules.
+- Develop a unified application interface.
+
+---
+
+## 11. Technology Stack
+
+The project uses technologies from several areas of engineering and computer science.
+
+| Area | Technologies |
+|---|---|
+| Programming | Python |
+| Computer vision | OpenCV |
+| Numerical computing | NumPy |
+| Deep learning | Model-dependent frameworks |
+| Optical motion analysis | Farneback dense optical flow |
+| Visualisation | Matplotlib and 3D visualisation tools |
+| Simulation | Python-based modelling |
+| AI reporting | Large language models |
+| Version control | Git and GitHub |
+
+Specific framework versions and additional dependencies are documented within the respective modules.
+
+---
+
+## 12. Contributing & Development
+
+FIREWATCH is organised to support independent development of its subsystems.
+
+When modifying the repository:
+
+- Keep each subsystem's implementation within its own folder.
+- Preserve the relevant model weights and configuration files.
+- Document installation requirements.
+- Include example inputs and outputs where practical.
+- Clearly identify experimental and validated results.
+- Avoid committing virtual environments, generated caches, API keys, or unnecessary large datasets.
+
+For major changes, include a description of the affected module and its dependencies.
+
+---
+
+## 13. Acknowledgements
+
+Developed as an experimental engineering project for the **NASA Space Apps Challenge**.
+
+FIREWATCH brings together research and implementation across computer vision, optical sensing, spatial analysis, simulation, and artificial intelligence.
+
+The project is motivated by the broader challenge of improving fire monitoring and situational awareness in environments where conventional assumptions about fire behaviour may not hold.
+
+---
+
+## 14. Project Information
+
+**Project:** FIREWATCH  
+**Domain:** Intelligent Fire Monitoring & Risk Analysis  
+**Application:** NASA Space Apps Challenge  
+**Implementation:** Python-based modular research prototype  
+**Repository:** [GitHub Repository](https://github.com/mukund-mv/FIREWATCH)
+
+<p align="center">
+  <img src="assets/firewatch_banner.png" alt="FIREWATCH" width="75%">
+</p>
+
+<p align="center">
+  **DETECT · LOCALISE · SIMULATE · ASSESS**
+</p>
+
+<p align="center">
+  *Engineering a more comprehensive approach to fire intelligence.*
+</p>
